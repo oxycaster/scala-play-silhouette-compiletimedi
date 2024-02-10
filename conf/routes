@@ -1,2 +1,3 @@
 GET        /                    controllers.Application.index
+POST       /signin              controllers.Application.signin
 GET        /assets/*file        controllers.Assets.at(path = "/public", file)
