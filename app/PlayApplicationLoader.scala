@@ -15,6 +15,7 @@ class PlayComponents(context: Context)
     with HttpFiltersComponents
     with controllers.AssetsComponents
     with AppModule {
+  lazy val ec = new ApplicationExecutionContext(actorSystem)
   lazy val prefix: String = "/"
   lazy val router: Routes = wire[Routes]
 }
