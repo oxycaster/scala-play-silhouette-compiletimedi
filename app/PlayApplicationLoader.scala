@@ -1,16 +1,20 @@
-import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext}
+import com.softwaremill.macwire._
 import play.api.ApplicationLoader.Context
+import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext}
 import play.filters.HttpFiltersComponents
 import router.Routes
 
 class PlayApplicationLoader extends ApplicationLoader {
-  override def load(context: ApplicationLoader.Context): Application = new PlayComponents(context).application
+  override def load(context: ApplicationLoader.Context): Application = {
+    new PlayComponents(context).application
+  }
 }
 
 class PlayComponents(context: Context)
   extends BuiltInComponentsFromContext(context)
     with HttpFiltersComponents
-    with controllers.AssetsComponents {
-  lazy val applicationController = new controllers.Application(controllerComponents)
-  lazy val router: Routes = new Routes(httpErrorHandler, applicationController, assets)
+    with controllers.AssetsComponents
+    with AppModule {
+  lazy val prefix: String = "/"
+  lazy val router: Routes = wire[Routes]
 }
