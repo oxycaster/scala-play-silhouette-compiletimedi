@@ -1,5 +1,6 @@
 import com.softwaremill.macwire._
 import play.api.ApplicationLoader.Context
+import play.api.i18n.I18nComponents
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext}
 import play.filters.HttpFiltersComponents
 import router.Routes
@@ -14,6 +15,7 @@ class PlayComponents(context: Context)
   extends BuiltInComponentsFromContext(context)
     with HttpFiltersComponents
     with controllers.AssetsComponents
+    with I18nComponents
     with AppModule {
   lazy val ec = new ApplicationExecutionContext(actorSystem)
   lazy val prefix: String = "/"
