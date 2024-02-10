@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="EmacsSettings">
+    <option name="emacsPath" value="/usr/bin/emacs" />
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="openjdk-17" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+  <component name="SerialMonitorSettings" BaudRate="9600" LineEndingsIndex="0" ShowStatusWidget="true" />
+</project>
