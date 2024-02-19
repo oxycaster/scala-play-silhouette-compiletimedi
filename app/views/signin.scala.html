@@ -1,0 +1,14 @@
+@()
+<html>
+    <head>
+        <title>SignIn</title>
+    </head>
+    <body>
+        <h1>SignIn</h1>
+        <form action="@routes.Application.authenticate()" method="POST">
+            <input type="text" name="email" placeholder="Email" />
+            <input type="password" name="password" placeholder="Password" />
+            <input type="submit" value="Sign In" />
+        </form>
+    </body>
+</html>

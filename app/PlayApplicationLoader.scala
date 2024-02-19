@@ -1,4 +1,6 @@
+import auth.SilhouetteModule
 import com.softwaremill.macwire._
+import executioncontext.ApplicationExecutionContext
 import play.api.ApplicationLoader.Context
 import play.api.i18n.I18nComponents
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext}
@@ -16,8 +18,9 @@ class PlayComponents(context: Context)
     with HttpFiltersComponents
     with controllers.AssetsComponents
     with I18nComponents
+    with SilhouetteModule
     with AppModule {
-  lazy val ec = new ApplicationExecutionContext(actorSystem)
+  lazy val ec: ApplicationExecutionContext = wire[ApplicationExecutionContext]
   lazy val prefix: String = "/"
   lazy val router: Routes = wire[Routes]
 }

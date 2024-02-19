@@ -1,3 +1,4 @@
 GET        /                    controllers.Application.index
-POST       /signin              controllers.Application.signin
+GET        /signin              controllers.Application.signin
+POST       /signin              controllers.Application.authenticate
 GET        /assets/*file        controllers.Assets.at(path = "/public", file)

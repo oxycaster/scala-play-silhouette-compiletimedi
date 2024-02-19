@@ -1,14 +1,13 @@
 package controllers
 
-import com.mohiva.play.silhouette.api.{Environment, EventBus, LoginEvent, LoginInfo, Silhouette}
-import com.mohiva.play.silhouette.impl.authenticators.CookieAuthenticator
+import auth.DefaultEnv
+import com.mohiva.play.silhouette.api.{EventBus, LoginEvent, LoginInfo, Silhouette}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import domain.entity.ユーザー
 import domain.{entity, service}
 import play.api.data.Form
 import play.api.data.Forms.{mapping, nonEmptyText}
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
-import util.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -32,13 +31,18 @@ class Application (
     Ok("こんにちは！こんにちは！！こんにちは！！！")
   }
 
-  def signin(): Action[AnyContent] = Action.async { implicit request =>
+  def signin(): Action[AnyContent] = silhouette.UnsecuredAction {
+    Ok(views.html.signin())
+  }
+
+  def authenticate(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
     loginForm.bindFromRequest().fold(
       formWithErrors => {
         Future.successful(BadRequest("ログイン失敗"))
       },
       loginData => {
         val loginInfo = LoginInfo(CredentialsProvider.ID, loginData.email)
+
         userService.ログイン(loginData.email, loginData.password).map { user: entity.ユーザー =>
           eventBus.publish(LoginEvent[ユーザー](user, request))
           Ok("ログイン成功")
