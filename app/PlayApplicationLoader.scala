@@ -2,6 +2,7 @@ import auth.SilhouetteModule
 import com.softwaremill.macwire._
 import executioncontext.ApplicationExecutionContext
 import play.api.ApplicationLoader.Context
+import play.api.cache.ehcache.EhCacheComponents
 import play.api.i18n.I18nComponents
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext}
 import play.filters.HttpFiltersComponents
@@ -19,6 +20,7 @@ class PlayComponents(context: Context)
     with controllers.AssetsComponents
     with I18nComponents
     with SilhouetteModule
+    with EhCacheComponents
     with AppModule {
   lazy val ec: ApplicationExecutionContext = wire[ApplicationExecutionContext]
   lazy val prefix: String = "/"

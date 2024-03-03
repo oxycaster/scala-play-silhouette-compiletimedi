@@ -1,7 +1,9 @@
 package controllers
 
-import auth.DefaultEnv
-import com.mohiva.play.silhouette.api.{EventBus, LoginEvent, LoginInfo, Silhouette}
+import auth.{DefaultEnv, IdentityServiceImpl}
+import com.mohiva.play.silhouette.api.services.IdentityService
+import com.mohiva.play.silhouette.api.{Environment, EventBus, LoginEvent, LoginInfo, Silhouette}
+import com.mohiva.play.silhouette.impl.authenticators.CookieAuthenticator
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import domain.entity.ユーザー
 import domain.{entity, service}
@@ -14,11 +16,12 @@ import scala.concurrent.{ExecutionContext, Future}
 case class LoginForm(email: String, password: String)
 
 class Application (
+                    val env: Environment[DefaultEnv],
                     silhouette: Silhouette[DefaultEnv],
                     eventBus: EventBus,
                     userService: service.ユーザー,
                     cc: ControllerComponents,
-                  )(implicit val ec: ExecutionContext) extends AbstractController(cc) {
+                  )(implicit val ec: ExecutionContext) extends AbstractController(cc){
 
   private val loginForm = Form(
     mapping(
@@ -27,11 +30,11 @@ class Application (
     )(LoginForm.apply)(LoginForm.unapply)
   )
 
-  def index: Action[AnyContent] = silhouette.SecuredAction {
-    Ok("こんにちは！こんにちは！！こんにちは！！！")
+  def index: Action[AnyContent] = silhouette.SecuredAction.async { implicit request =>
+    Future.successful(Ok("こんにちは！こんにちは！！こんにちは！！！"))
   }
 
-  def signin(): Action[AnyContent] = silhouette.UnsecuredAction {
+  def signin(): Action[AnyContent] = silhouette.UnsecuredAction { implicit request =>
     Ok(views.html.signin())
   }
 
@@ -42,10 +45,15 @@ class Application (
       },
       loginData => {
         val loginInfo = LoginInfo(CredentialsProvider.ID, loginData.email)
-
-        userService.ログイン(loginData.email, loginData.password).map { user: entity.ユーザー =>
-          eventBus.publish(LoginEvent[ユーザー](user, request))
-          Ok("ログイン成功")
+        userService.ログイン(loginData.email, loginData.password).flatMap { user: entity.ユーザー =>
+          for {
+            authenticator <- silhouette.env.authenticatorService.create(loginInfo)
+            cookie <- silhouette.env.authenticatorService.init(authenticator)
+            result <- silhouette.env.authenticatorService.embed(cookie, {
+              silhouette.env.eventBus.publish(LoginEvent(user, request))
+              Ok("ログインに成功")
+            })
+          } yield result
         }
       }
     )

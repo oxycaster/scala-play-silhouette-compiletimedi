@@ -6,6 +6,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "scala-play-silhouette-compiletimedi",
     libraryDependencies ++= Seq(
+      ehcache,
       "com.softwaremill.macwire" %% "macros" % "2.5.9" % Provided,
       "com.softwaremill.macwire" %% "macrosakka" % "2.5.9" % Provided,
 

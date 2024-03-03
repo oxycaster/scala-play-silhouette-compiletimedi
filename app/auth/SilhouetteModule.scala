@@ -3,13 +3,14 @@ package auth
 import com.mohiva.play.silhouette.api.actions._
 import com.mohiva.play.silhouette.api.crypto.{AuthenticatorEncoder, CrypterAuthenticatorEncoder, Signer}
 import com.mohiva.play.silhouette.api.services.AuthenticatorService
-import com.mohiva.play.silhouette.api.util.{Clock, FingerprintGenerator, IDGenerator}
+import com.mohiva.play.silhouette.api.util.{Clock, FingerprintGenerator, IDGenerator, PlayHTTPLayer}
 import com.mohiva.play.silhouette.api.{Environment, EventBus, Silhouette, SilhouetteProvider}
 import com.mohiva.play.silhouette.crypto.{JcaCrypter, JcaCrypterSettings, JcaSigner, JcaSignerSettings}
 import com.mohiva.play.silhouette.impl.authenticators.{CookieAuthenticator, CookieAuthenticatorService, CookieAuthenticatorSettings}
-import com.mohiva.play.silhouette.impl.util.{DefaultFingerprintGenerator, SecureRandomIDGenerator}
+import com.mohiva.play.silhouette.impl.util.{DefaultFingerprintGenerator, PlayCacheLayer, SecureRandomIDGenerator}
 import executioncontext.ApplicationExecutionContext
 import play.api.Configuration
+import play.api.cache.{AsyncCacheApi, CacheApi}
 import play.api.mvc.{BodyParsers, ControllerComponents, CookieHeaderEncoding, DefaultCookieHeaderEncoding}
 
 import scala.concurrent.duration.FiniteDuration
@@ -18,13 +19,17 @@ trait SilhouetteModule {
   import com.softwaremill.macwire._
   implicit def ec: ApplicationExecutionContext
   def configuration: Configuration
+  def defaultCacheApi: AsyncCacheApi
+
+  lazy val cacheLayer = wire[PlayCacheLayer]
+
   def controllerComponents: ControllerComponents
   private val playBodyParsers = controllerComponents.parsers
   private val bodyParsers: BodyParsers.Default = new BodyParsers.Default(playBodyParsers)
   private val messagesApi = controllerComponents.messagesApi
 
-  lazy val clock: Clock = wire[Clock]
-  lazy val eventBus: EventBus = wire[EventBus]
+  lazy val clock: Clock = Clock()
+  lazy val eventBus: EventBus = EventBus()
   lazy val idGenerator = new SecureRandomIDGenerator
   lazy val fingerprintGenerator = new DefaultFingerprintGenerator(false)
   lazy val signer = new JcaSigner(new JcaSignerSettings("someSigner"))
