@@ -3,14 +3,14 @@ package auth
 import com.mohiva.play.silhouette.api.actions._
 import com.mohiva.play.silhouette.api.crypto.{AuthenticatorEncoder, CrypterAuthenticatorEncoder, Signer}
 import com.mohiva.play.silhouette.api.services.AuthenticatorService
-import com.mohiva.play.silhouette.api.util.{Clock, FingerprintGenerator, IDGenerator, PlayHTTPLayer}
+import com.mohiva.play.silhouette.api.util.{Clock, FingerprintGenerator, IDGenerator}
 import com.mohiva.play.silhouette.api.{Environment, EventBus, Silhouette, SilhouetteProvider}
 import com.mohiva.play.silhouette.crypto.{JcaCrypter, JcaCrypterSettings, JcaSigner, JcaSignerSettings}
 import com.mohiva.play.silhouette.impl.authenticators.{CookieAuthenticator, CookieAuthenticatorService, CookieAuthenticatorSettings}
 import com.mohiva.play.silhouette.impl.util.{DefaultFingerprintGenerator, PlayCacheLayer, SecureRandomIDGenerator}
 import executioncontext.ApplicationExecutionContext
 import play.api.Configuration
-import play.api.cache.{AsyncCacheApi, CacheApi}
+import play.api.cache.AsyncCacheApi
 import play.api.mvc.{BodyParsers, ControllerComponents, CookieHeaderEncoding, DefaultCookieHeaderEncoding}
 
 import scala.concurrent.duration.FiniteDuration

@@ -1,11 +1,8 @@
 package controllers
 
-import auth.{DefaultEnv, IdentityServiceImpl}
-import com.mohiva.play.silhouette.api.services.IdentityService
-import com.mohiva.play.silhouette.api.{Environment, EventBus, LoginEvent, LoginInfo, Silhouette}
-import com.mohiva.play.silhouette.impl.authenticators.CookieAuthenticator
+import auth.DefaultEnv
+import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import domain.entity.ユーザー
 import domain.{entity, service}
 import play.api.data.Form
 import play.api.data.Forms.{mapping, nonEmptyText}
@@ -16,9 +13,9 @@ import scala.concurrent.{ExecutionContext, Future}
 case class LoginForm(email: String, password: String)
 
 class Application (
-                    val env: Environment[DefaultEnv],
+                    //val env: Environment[DefaultEnv],
                     silhouette: Silhouette[DefaultEnv],
-                    eventBus: EventBus,
+                    //eventBus: EventBus,
                     userService: service.ユーザー,
                     cc: ControllerComponents,
                   )(implicit val ec: ExecutionContext) extends AbstractController(cc){
@@ -34,8 +31,11 @@ class Application (
     Future.successful(Ok("こんにちは！こんにちは！！こんにちは！！！"))
   }
 
-  def signin(): Action[AnyContent] = silhouette.UnsecuredAction { implicit request =>
-    Ok(views.html.signin())
+  def signin(): Action[AnyContent] = silhouette.UserAwareAction { implicit request =>
+    request.identity match {
+      case Some(_) => Redirect(routes.Application.index())
+      case None => Ok(views.html.signin())
+    }
   }
 
   def authenticate(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
@@ -51,7 +51,7 @@ class Application (
             cookie <- silhouette.env.authenticatorService.init(authenticator)
             result <- silhouette.env.authenticatorService.embed(cookie, {
               silhouette.env.eventBus.publish(LoginEvent(user, request))
-              Ok("ログインに成功")
+              Redirect(routes.Application.index()).flashing("success" -> "ログインに成功")
             })
           } yield result
         }
