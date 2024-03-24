@@ -1,6 +1,6 @@
 package controllers
 
-import auth.DefaultEnv
+import auth.{DefaultEnv, WithRole}
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import domain.{entity, service}
@@ -31,11 +31,20 @@ class Application (
     Future.successful(Ok("こんにちは！こんにちは！！こんにちは！！！"))
   }
 
+  def adminOnly: Action[AnyContent] = silhouette.SecuredAction(WithRole(entity.ロール.Admin)).async { implicit request =>
+    Future.successful(Ok("管理者だけが見れるページ"))
+  }
+
   def signin(): Action[AnyContent] = silhouette.UserAwareAction { implicit request =>
     request.identity match {
       case Some(_) => Redirect(routes.Application.index())
       case None => Ok(views.html.signin())
     }
+  }
+
+  def signout() = silhouette.SecuredAction.async { implicit request =>
+    silhouette.env.eventBus.publish(LogoutEvent(request.identity, request))
+    silhouette.env.authenticatorService.discard(request.authenticator, Redirect(routes.Application.signin()))
   }
 
   def authenticate(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>

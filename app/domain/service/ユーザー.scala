@@ -13,6 +13,7 @@ class ユーザー {
   def ログイン(メールアドレス: String, パスワード: String): Future[entity.ユーザー] = {
     val user: entity.ユーザー = entity.ユーザー(
       ユーザーID(メールアドレス),
+      entity.ロール.User,
       LoginInfo(CredentialsProvider.ID, メールアドレス)
     )
     Future.successful(user)

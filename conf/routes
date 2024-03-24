@@ -1,4 +1,6 @@
 GET        /                    controllers.Application.index
+GET        /admin               controllers.Application.adminOnly
 GET        /signin              controllers.Application.signin
 POST       /signin              controllers.Application.authenticate
+GET        /signout             controllers.Application.signout
 GET        /assets/*file        controllers.Assets.at(path = "/public", file)
